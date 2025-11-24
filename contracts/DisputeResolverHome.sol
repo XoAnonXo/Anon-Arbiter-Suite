@@ -369,9 +369,7 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
         uint48 disputeLockEnd = uint48(block.timestamp + unwrapCooldown);
 
         // Verify ownership and NFT state on home chain
-        uint256[] memory validTokenIds = new uint256[](length);
         uint96[] memory powers = new uint96[](length);
-        uint validCount;
 
         for (uint i; i < length; ) {
             uint256 tokenId = tokenIds[i];
@@ -385,26 +383,14 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
                 nft.unstakeAvailableAt = disputeLockEnd;
             }
 
-            validTokenIds[validCount] = tokenId;
-            powers[validCount] = nft.power;
+            powers[i] = nft.power;
             unchecked {
-                validCount++;
                 ++i;
             }
         }
 
-        if (validCount == 0) revert Errors.NoValidVotes();
-
-        // Trim arrays if needed
-        if (validCount < length) {
-            assembly {
-                mstore(validTokenIds, validCount)
-                mstore(powers, validCount)
-            }
-        }
-
         // Send vote request to remote chain
-        bytes memory payload = abi.encode(VOTE_MSG, msg.sender, _oracle, _status, validTokenIds, powers);
+        bytes memory payload = abi.encode(VOTE_MSG, msg.sender, _oracle, _status, tokenIds, powers);
 
         _lzSend(
             _dstChainEid,
@@ -414,7 +400,7 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
             payable(msg.sender) // Excess msg.value refunded to caller on HOME chain
         );
 
-        emit RemoteVoteSent(msg.sender, _oracle, _dstChainEid, validTokenIds);
+        emit RemoteVoteSent(msg.sender, _oracle, _dstChainEid, tokenIds);
     }
 
     /// @notice Quote fee for voting on remote dispute
@@ -428,7 +414,7 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
     ) external view returns (MessagingFee memory fee) {
         uint length = tokenIds.length;
         uint96[] memory powers = new uint96[](tokenIds.length);
-        for (uint i; i < length; ++i) {
+        for (uint i; i < length; ) {
             powers[i] = nftInfos[tokenIds[i]].power;
             unchecked {
                 ++i;
