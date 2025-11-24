@@ -74,7 +74,7 @@ Sonic (Home)                    LayerZero V2                    Base (Remote)
 ### DVN Setup
 - **Required DVNs**: LayerZero Labs, Nethermind
 - **Security Model**: Both DVNs must verify messages
-- **Confirmations**: 1 block on both chains
+- **Confirmations**: 3 block on both chains
 
 ### Gas Configuration
 - **Vote Message**: 200k base gas + ~26k per NFT
