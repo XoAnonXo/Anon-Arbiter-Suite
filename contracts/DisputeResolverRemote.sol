@@ -109,7 +109,7 @@ contract DisputeResolverRemote is OApp, OAppOptionsType3 {
         address market = getMarketAddress(_oracle);
         Dispute storage dispute = disputes[_oracle];
         if (dispute.state != DisputeState.NotActive) revert Errors.DisputeAlreadyOpened();
-        if (!_canWeStartDispute(_oracle)) revert Errors.MarketState();
+        if (!_canWeStartDispute(_oracle, _status)) revert Errors.MarketState();
 
         uint calculated = _getMarketTVL(market) / COLLATERAL_DIVISOR;
         uint amount = calculated < MINIMUM_COLLATERAL ? MINIMUM_COLLATERAL : calculated;
@@ -170,7 +170,6 @@ contract DisputeResolverRemote is OApp, OAppOptionsType3 {
         Dispute storage dispute = disputes[_oracle];
         if (dispute.state != DisputeState.Active) revert Errors.DisputeNotActive();
         if (block.timestamp >= dispute.endAt) revert Errors.VotingPeriodEnded();
-        if (_status == VoteOption.Pending) revert Errors.CannotVoteForPending();
         uint length = tokenIds.length;
         if (length == 0) revert Errors.EmptyTokenIdsArray();
         if (length != powers.length) revert Errors.EmptyArray();
@@ -179,12 +178,10 @@ contract DisputeResolverRemote is OApp, OAppOptionsType3 {
 
         for (uint i; i < length; i++) {
             uint256 tokenId = tokenIds[i];
-
-            // Skip if already voted
-            if (dispute.tokenVotes[tokenId].votedFor != VoteOption.Pending) continue;
-
             // Record vote with power sent from home chain
             VoteRecord storage voteRecord = dispute.tokenVotes[tokenId];
+            // Skip if already voted
+            if (voteRecord.votedFor != VoteOption.Pending) continue;
             voteRecord.votedFor = _status;
             voteRecord.power = powers[i];
             totalPower += powers[i];
@@ -415,11 +412,11 @@ contract DisputeResolverRemote is OApp, OAppOptionsType3 {
         return escalationPeriodEpochs * EPOCH_LENGTH;
     }
 
-    function _canWeStartDispute(address _oracle) internal view returns (bool) {
+    function _canWeStartDispute(address _oracle, VoteOption _status) internal view returns (bool) {
         (bool success, bytes memory response) = _oracle.staticcall(abi.encodeWithSignature("getFinalizedStatus()"));
         if (!success) revert Errors.Fail();
         (bool isFinalized, VoteOption status) = (abi.decode(response, (bool, VoteOption)));
-        return (!isFinalized && status != VoteOption.Pending);
+        return (!isFinalized && status != VoteOption.Pending && _status != status);
     }
 
     function _startArbitration(address _oracle) internal {

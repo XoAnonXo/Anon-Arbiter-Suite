@@ -365,7 +365,7 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
         uint length = tokenIds.length;
         if (length == 0) revert Errors.EmptyTokenIdsArray();
 
-        // Lock NFTs for fixed period (voteCooldown = 60 hours)
+        // Lock NFTs for fixed period (unwrapCooldown = 60 hours)
         uint48 disputeLockEnd = uint48(block.timestamp + unwrapCooldown);
 
         // Verify ownership and NFT state on home chain
@@ -496,7 +496,7 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
         if (no > maxVotes) maxVotes = no;
         if (unknown > maxVotes) maxVotes = unknown;
 
-        uint countWithMax = 0;
+        uint countWithMax;
         if (yes == maxVotes) countWithMax++;
         if (no == maxVotes) countWithMax++;
         if (unknown == maxVotes) countWithMax++;
