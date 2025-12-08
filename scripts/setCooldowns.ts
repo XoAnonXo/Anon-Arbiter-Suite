@@ -1,11 +1,14 @@
 import { ethers } from 'hardhat'
 
 /**
+ * 
+ * npx hardhat run scripts/setCooldowns.ts --network sonic_mainnet
+ * 
  * Set voteCooldown and unwrapCooldown to 2 minutes (120 seconds)
  * for frontend testing purposes
  */
 async function main() {
-    const DISPUTE_RESOLVER_HOME = '0xf2e62Bc15Cf1bC114d080d90f80640C337D5795B'
+    const DISPUTE_RESOLVER_HOME = '0xd447C3a4f4CA6036c2e51ccD0aCB45F7BFb1a5BE'
     const NEW_COOLDOWN = 120 // 2 minutes in seconds
 
     console.log(`\n========================================`)
@@ -26,7 +29,7 @@ async function main() {
     // Check current values
     const currentVoteCooldown = await disputeResolver.voteCooldown()
     const currentUnwrapCooldown = await disputeResolver.unwrapCooldown()
-    
+
     console.log(`Current voteCooldown: ${currentVoteCooldown} seconds (${Number(currentVoteCooldown) / 3600} hours)`)
     console.log(`Current unwrapCooldown: ${currentUnwrapCooldown} seconds (${Number(currentUnwrapCooldown) / 3600} hours)\n`)
 
@@ -45,7 +48,7 @@ async function main() {
     // Verify new values
     const newVoteCooldown = await disputeResolver.voteCooldown()
     const newUnwrapCooldown = await disputeResolver.unwrapCooldown()
-    
+
     console.log(`========================================`)
     console.log(`✅ Cooldowns Updated Successfully!`)
     console.log(`========================================`)
