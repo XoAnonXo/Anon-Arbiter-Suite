@@ -41,6 +41,7 @@ const config: HardhatUserConfig = {
     paths: {
         cache: 'cache/hardhat',
     },
+    //@ts-ignore
     contractSizer: {
         alphaSort: true,
         runOnCompile: true,

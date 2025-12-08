@@ -121,13 +121,13 @@ const deploy: DeployFunction = async (hre) => {
     await tx.wait()
     console.log(`✅ DisputeResolverHome approved in Vault\n`)
 
-    // 9. Setup - Link oracle to market in factory
+    // 9. Setup - Link oracle to AMM market in factory
     await sleep(5000)
-    console.log(`Setting up oracle -> market link...`)
+    console.log(`Setting up oracle -> AMM market link...`)
     const factory = await ethers.getContractAt('MockMarketFactory', mockMarketFactory.address)
-    const tx2 = await factory.setMarket(mockOracle.address, mockMarket.address)
+    const tx2 = await factory.setAMMMarket(mockOracle.address, mockMarket.address)
     await tx2.wait()
-    console.log(`✅ Oracle ${mockOracle.address} linked to Market ${mockMarket.address}\n`)
+    console.log(`✅ Oracle ${mockOracle.address} linked to AMM Market ${mockMarket.address}\n`)
 
     // 10. Configure MockOracle - set as not finalized with draft status
     await sleep(5000)
@@ -141,11 +141,7 @@ const deploy: DeployFunction = async (hre) => {
     await sleep(5000)
     console.log(`Configuring MockMarket...`)
     const market = await ethers.getContractAt('MockMarket', mockMarket.address)
-    const tx4 = await market.setReserves(
-        0,                          // reserve0
-        0,                          // reserve1
-        0,                          // reserve2
-        0,                          // reserve3
+    const tx4 = await market.setTVL(
         1_000_000 * 1e6             // collateralTvl = 1M USDC (6 decimals)
     )
     await tx4.wait()

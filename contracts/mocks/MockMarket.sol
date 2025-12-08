@@ -2,31 +2,25 @@
 pragma solidity ^0.8.26;
 
 /// @title MockMarket
-/// @notice Mock market for testing DisputeResolver
+/// @notice Mock market for testing DisputeResolver - supports both AMM and PariMutuel interfaces
 contract MockMarket {
     address public owner;
     address public collateralToken;
-
-    // Reserves data
-    uint112 public reserve0;
-    uint112 public reserve1;
-    uint256 public reserve2;
-    uint256 public reserve3;
     uint256 public collateralTvl;
+    bool public isLive;
+    uint24 public yesChance;
 
     event CollateralTokenSet(address indexed token);
-    event ReservesSet(uint112 r0, uint112 r1, uint256 r2, uint256 r3, uint256 tvl);
+    event TVLSet(uint256 tvl);
+    event IsLiveSet(bool isLive);
+    event YesChanceSet(uint24 yesChance);
 
     constructor(address _collateralToken) {
         owner = msg.sender;
         collateralToken = _collateralToken;
-
-        // Set default reserves
-        reserve0 = 1000000;
-        reserve1 = 1000000;
-        reserve2 = 0;
-        reserve3 = 0;
         collateralTvl = 10_000_000 * 1e18; // 10M tokens TVL
+        isLive = true; // Market is live by default
+        yesChance = 500000; // 50% chance by default
     }
 
     modifier onlyOwner() {
@@ -41,28 +35,38 @@ contract MockMarket {
         emit CollateralTokenSet(_token);
     }
 
-    /// @notice Set reserves data
-    /// @param _r0 Reserve 0
-    /// @param _r1 Reserve 1
-    /// @param _r2 Reserve 2
-    /// @param _r3 Reserve 3
+    /// @notice Set TVL
     /// @param _tvl Collateral TVL
-    function setReserves(uint112 _r0, uint112 _r1, uint256 _r2, uint256 _r3, uint256 _tvl) external onlyOwner {
-        reserve0 = _r0;
-        reserve1 = _r1;
-        reserve2 = _r2;
-        reserve3 = _r3;
+    function setTVL(uint256 _tvl) external onlyOwner {
         collateralTvl = _tvl;
-        emit ReservesSet(_r0, _r1, _r2, _r3, _tvl);
+        emit TVLSet(_tvl);
     }
 
-    /// @notice Get reserves (required by DisputeResolver)
-    /// @return _r0 Reserve 0
-    /// @return _r1 Reserve 1
-    /// @return _r2 Reserve 2
-    /// @return _r3 Reserve 3
-    /// @return _tvl Collateral TVL
-    function getReserves() external view returns (uint112 _r0, uint112 _r1, uint256 _r2, uint256 _r3, uint256 _tvl) {
-        return (reserve0, reserve1, reserve2, reserve3, collateralTvl);
+    /// @notice Set market live status
+    /// @param _isLive Whether market is live
+    function setIsLive(bool _isLive) external onlyOwner {
+        isLive = _isLive;
+        emit IsLiveSet(_isLive);
+    }
+
+    /// @notice Set YES chance
+    /// @param _yesChance YES chance (0-1000000, where 1000000 = 100%)
+    function setYesChance(uint24 _yesChance) external onlyOwner {
+        require(_yesChance <= 1000000, "Invalid yes chance");
+        yesChance = _yesChance;
+        emit YesChanceSet(_yesChance);
+    }
+
+    /// @notice Get market state (required by DisputeResolver - universal method for AMM & PariMutuel)
+    /// @return isLive_ Market is live
+    /// @return collateralTvl_ Total value locked in collateral
+    /// @return yesChance_ YES chance
+    /// @return collateral Collateral token address
+    function marketState()
+        external
+        view
+        returns (bool isLive_, uint256 collateralTvl_, uint24 yesChance_, address collateral)
+    {
+        return (isLive, collateralTvl, yesChance, collateralToken);
     }
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 library Errors {
     error MarketState();
     error MarketNotFound();
-    error TVL();
+    error MarketInfo();
     error Fail();
     error OnlyStakeForYear();
     error StaleNFT();

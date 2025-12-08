@@ -522,7 +522,7 @@ describe("DisputeResolver Tests", function () {
     describe("Dispute Creation", function () {
         before(async function () {
             // Setup: Register oracle → market mapping in MockMarketFactory
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -537,11 +537,7 @@ describe("DisputeResolver Tests", function () {
 
             // Setup MockMarket TVL with USDC (6 decimals)
             // TVL = 10,000 USDC, collateral required = 10,000 / 100 = 100 USDC minimum
-            await CONTRACT_MOCK_MARKET.connect(owner).setReserves(
-                1000000,  // reserve0
-                1000000,  // reserve1
-                0,        // reserve2 (protocolFees)
-                0,        // reserve3
+            await CONTRACT_MOCK_MARKET.connect(owner).setTVL(
                 ethers.utils.parseUnits("10000", 6)  // TVL in USDC (6 decimals)
             );
         });
@@ -652,9 +648,9 @@ describe("DisputeResolver Tests", function () {
         });
 
         it("Should successfully create dispute with correct parameters", async function () {
-            // Check market TVL
-            const reserves = await CONTRACT_MOCK_MARKET.getReserves();
-            const marketTVL = reserves[4]; // 5th return value
+            // Check market TVL via marketState()
+            const marketState = await CONTRACT_MOCK_MARKET.marketState();
+            const marketTVL = marketState[1]; // collateralTvl (2nd return value)
             // console.log("Market TVL:", ethers.utils.formatUnits(marketTVL, 6), "USDC");
 
             const requiredCollateral = marketTVL.div(100); // 1% of TVL
@@ -960,7 +956,7 @@ describe("DisputeResolver Tests", function () {
             CONTRACT_MOCK_ORACLE_2 = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
             await CONTRACT_MOCK_ORACLE_2.deployed();
             await CONTRACT_MOCK_ORACLE_2.connect(owner).setStatus(false, 1); // PollStatus.Yes
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE_2.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -1315,7 +1311,7 @@ describe("DisputeResolver Tests", function () {
             const CONTRACT_MOCK_ORACLE_EXPIRED = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
             await CONTRACT_MOCK_ORACLE_EXPIRED.deployed();
             await CONTRACT_MOCK_ORACLE_EXPIRED.connect(owner).setStatus(false, 1); // PollStatus.Yes
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE_EXPIRED.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -1554,7 +1550,7 @@ describe("DisputeResolver Tests", function () {
             const CONTRACT_MOCK_ORACLE_NO_VOTES = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
             await CONTRACT_MOCK_ORACLE_NO_VOTES.deployed();
             await CONTRACT_MOCK_ORACLE_NO_VOTES.connect(owner).setStatus(false, 1); // PollStatus.Yes
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE_NO_VOTES.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -1630,7 +1626,7 @@ describe("DisputeResolver Tests", function () {
             const CONTRACT_MOCK_ORACLE_TIE = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
             await CONTRACT_MOCK_ORACLE_TIE.deployed();
             await CONTRACT_MOCK_ORACLE_TIE.connect(owner).setStatus(false, 1); // PollStatus.Yes
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE_TIE.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -1716,7 +1712,7 @@ describe("DisputeResolver Tests", function () {
             const CONTRACT_MOCK_ORACLE_UNRESOLVED = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
             await CONTRACT_MOCK_ORACLE_UNRESOLVED.deployed();
             await CONTRACT_MOCK_ORACLE_UNRESOLVED.connect(owner).setStatus(false, 1);
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE_UNRESOLVED.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -1960,7 +1956,7 @@ describe("DisputeResolver Tests", function () {
             const CONTRACT_MOCK_ORACLE_TRANSFER = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
             await CONTRACT_MOCK_ORACLE_TRANSFER.deployed();
             await CONTRACT_MOCK_ORACLE_TRANSFER.connect(owner).setStatus(false, 1); // PollStatus.Yes
-            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(
                 CONTRACT_MOCK_ORACLE_TRANSFER.address,
                 CONTRACT_MOCK_MARKET.address
             );
@@ -2036,6 +2032,59 @@ describe("DisputeResolver Tests", function () {
     });
 
     describe("Getter Functions", function () {
+        it("Should return correct dispute collateral amount for high TVL market", async function () {
+            // Market TVL is 10,000 USDC (6 decimals)
+            const [collateralAmount, collateralToken] = await CONTRACT_DISPUTE_RESOLVER_HOME.getDisputeCollateral(CONTRACT_MOCK_ORACLE.address);
+
+            const marketState = await CONTRACT_MOCK_MARKET.marketState();
+            const marketTVL = marketState[1]; // collateralTvl
+            const expectedCollateral = marketTVL.div(100); // 1% of TVL
+
+            expect(collateralAmount.eq(expectedCollateral)).to.be.true;
+            expect(collateralToken).to.eq(CONTRACT_MOCK_ERC20.address);
+        });
+
+        it("Should return MINIMUM_COLLATERAL for low TVL market", async function () {
+            // Create a market with very low TVL (less than 100 * MINIMUM_COLLATERAL)
+            const MockOracleFactory = await ethers.getContractFactory("MockOracle");
+            const lowTvlOracle = await MockOracleFactory.connect(owner).deploy();
+            await lowTvlOracle.deployed();
+            await lowTvlOracle.connect(owner).setStatus(false, 1); // PollStatus.Yes
+
+            const MockMarketFactory = await ethers.getContractFactory("MockMarket");
+            const lowTvlMarket = await MockMarketFactory.connect(owner).deploy(CONTRACT_MOCK_ERC20.address);
+            await lowTvlMarket.deployed();
+
+            // Set very low TVL (50 USDC = 50e6)
+            await lowTvlMarket.connect(owner).setTVL(ethers.utils.parseUnits("50", 6));
+
+            // Register in factory
+            await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(lowTvlOracle.address, lowTvlMarket.address);
+
+            const [collateralAmount, collateralToken] = await CONTRACT_DISPUTE_RESOLVER_HOME.getDisputeCollateral(lowTvlOracle.address);
+
+            // TVL = 50 USDC, 1% = 0.5 USDC
+            // But MINIMUM_COLLATERAL = 1e6 (1 USDC with 6 decimals)
+            expect(collateralAmount.eq(1000000)).to.be.true; // MINIMUM_COLLATERAL
+            expect(collateralToken).to.eq(CONTRACT_MOCK_ERC20.address);
+        });
+
+        it("Should revert when oracle has no market", async function () {
+            const MockOracleFactory = await ethers.getContractFactory("MockOracle");
+            const noMarketOracle = await MockOracleFactory.connect(owner).deploy();
+            await noMarketOracle.deployed();
+
+            // Don't register in factory - no market exists
+            const marketNotFoundSelector = ethers.utils.id("MarketNotFound()").slice(0, 10);
+
+            try {
+                await CONTRACT_DISPUTE_RESOLVER_HOME.getDisputeCollateral(noMarketOracle.address);
+                expect.fail("Should have reverted");
+            } catch (error: any) {
+                expect(error.data).to.include(marketNotFoundSelector.slice(2), "Should revert with MarketNotFound error");
+            }
+        });
+
         it("Should return complete dispute info via getDisputeInfo", async function () {
             // Get first dispute info (already resolved)
             const disputeInfo = await CONTRACT_DISPUTE_RESOLVER_HOME.getDisputeInfo(CONTRACT_MOCK_ORACLE.address);
@@ -2263,7 +2312,7 @@ describe("DisputeResolver Tests", function () {
                     const oracle = (await MockOracleFactory.connect(owner).deploy()) as MockOracle;
                     await oracle.deployed();
                     await oracle.connect(owner).setStatus(false, 1); // PollStatus.Yes
-                    await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setMarket(oracle.address, CONTRACT_MOCK_MARKET.address);
+                    await CONTRACT_MOCK_MARKET_FACTORY.connect(owner).setAMMMarket(oracle.address, CONTRACT_MOCK_MARKET.address);
                     testOracles.push(oracle);
 
                     // Create dispute
@@ -2390,7 +2439,7 @@ describe("DisputeResolver Tests", function () {
             const MockMarketFactoryFactory = await ethers.getContractFactory("MockMarketFactory");
             CONTRACT_REMOTE_MARKET_FACTORY = (await MockMarketFactoryFactory.connect(owner).deploy()) as MockMarketFactory;
             await CONTRACT_REMOTE_MARKET_FACTORY.deployed();
-            await CONTRACT_REMOTE_MARKET_FACTORY.connect(owner).setMarket(CONTRACT_REMOTE_ORACLE.address, CONTRACT_REMOTE_MARKET.address);
+            await CONTRACT_REMOTE_MARKET_FACTORY.connect(owner).setAMMMarket(CONTRACT_REMOTE_ORACLE.address, CONTRACT_REMOTE_MARKET.address);
 
             const VaultFactory = await ethers.getContractFactory("Vault");
             CONTRACT_REMOTE_VAULT = (await VaultFactory.connect(owner).deploy(owner.address)) as Vault;
@@ -2420,9 +2469,23 @@ describe("DisputeResolver Tests", function () {
             console.log("========================================\n");
         });
 
+        it("Should return correct dispute collateral for remote chain", async function () {
+            // Setup remote market TVL (10,000 USDC)
+            await CONTRACT_REMOTE_MARKET.connect(owner).setTVL(ethers.utils.parseUnits("10000", 6));
+
+            const [collateralAmount, collateralToken] = await CONTRACT_DISPUTE_RESOLVER_REMOTE.getDisputeCollateral(CONTRACT_REMOTE_ORACLE.address);
+
+            const marketState = await CONTRACT_REMOTE_MARKET.marketState();
+            const marketTVL = marketState[1]; // collateralTvl
+            const expectedCollateral = marketTVL.div(100); // 1% of TVL
+
+            expect(collateralAmount.eq(expectedCollateral)).to.be.true;
+            expect(collateralToken).to.eq(CONTRACT_REMOTE_ERC20.address);
+        });
+
         it("Should create dispute on remote chain", async function () {
             // Setup remote market TVL
-            await CONTRACT_REMOTE_MARKET.connect(owner).setReserves(1000000, 1000000, 0, 0, ethers.utils.parseUnits("10000", 6));
+            await CONTRACT_REMOTE_MARKET.connect(owner).setTVL(ethers.utils.parseUnits("10000", 6));
 
             // Mint collateral to disputer and create remote dispute
             await CONTRACT_REMOTE_ERC20.connect(owner).mint(disputer.address, ethers.utils.parseUnits("1000", 6));

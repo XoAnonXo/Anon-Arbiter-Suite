@@ -7,11 +7,13 @@ Mock contracts for testing DisputeResolverHome and DisputeResolverRemote functio
 ## Contracts
 
 ### 1. MockMarketFactory
-Factory contract that maps oracles to markets.
+Factory contract that maps oracles to markets. Supports both AMM and PariMutuel market types.
 
 **Functions:**
-- `setMarket(address oracle, address market)` - Set market for an oracle (owner only)
-- `getMarketByPoll(address oracle)` - Get market address by oracle
+- `setAMMMarket(address oracle, address market)` - Set AMM market for an oracle (owner only)
+- `setPariMutuelMarket(address oracle, address market)` - Set PariMutuel market for an oracle (owner only)
+- `getMarketByPoll(address oracle)` - Get AMM market address by oracle
+- `getPariMutuelByPoll(address oracle)` - Get PariMutuel market address by oracle
 
 ### 2. MockOracle
 Oracle contract with configurable dispute resolution parameters.
@@ -31,12 +33,14 @@ Oracle contract with configurable dispute resolution parameters.
 - `3` = Unknown
 
 ### 3. MockMarket
-Market contract with configurable reserves and TVL.
+Market contract with configurable TVL and market state. Supports both AMM and PariMutuel interfaces.
 
 **Functions:**
 - `setCollateralToken(address token)` - Set collateral token (owner only)
-- `setReserves(uint112 r0, uint112 r1, uint256 r2, uint256 r3, uint256 tvl)` - Set reserves data (owner only)
-- `getReserves()` - Get all reserves including collateral TVL
+- `setTVL(uint256 tvl)` - Set total value locked (owner only)
+- `setIsLive(bool isLive)` - Set market live status (owner only)
+- `setYesChance(uint24 yesChance)` - Set YES chance (0-1000000 = 0-100%, owner only)
+- `marketState()` - Universal: Get market state (isLive, collateralTvl, yesChance, collateral) - works for both AMM and PariMutuel
 - `collateralToken()` - Get collateral token address
 
 ### 4. MockERC20
@@ -65,7 +69,11 @@ MockOracle oracle = new MockOracle();
 MockMarketFactory factory = new MockMarketFactory();
 
 // 5. Connect oracle to market in factory
-factory.setMarket(address(oracle), address(market));
+// For AMM markets:
+factory.setAMMMarket(address(oracle), address(market));
+// Or for PariMutuel markets:
+factory.setPariMutuelMarket(address(oracle), address(market));
+
 
 // 6. Deploy DisputeResolverRemote
 DisputeResolverRemote resolver = new DisputeResolverRemote(
@@ -81,7 +89,13 @@ DisputeResolverRemote resolver = new DisputeResolverRemote(
 
 ```solidity
 // Set TVL for testing (1M USDC)
-market.setReserves(0, 0, 0, 0, ethers.utils.parseUnits('1000000', 18)); // 1M USDC (18 decimals)
+market.setTVL(ethers.utils.parseUnits('1000000', 18)); // 1M USDC (18 decimals)
+
+// Set market as live
+market.setIsLive(true);
+
+// Set YES chance to 70%
+market.setYesChance(700000); // 700000 / 1000000 = 70%
 
 // Set oracle as not finalized with Yes status (dispute can start)
 oracle.setStatus(false, MockOracle.VoteOption.Yes);
@@ -127,23 +141,35 @@ resolverHome.voteOnRemoteDispute(
 
 ### Scenario 1: High TVL Market (18 decimals)
 ```solidity
-market.setReserves(0, 0, 0, 0, ethers.utils.parseUnits('1000000000', 18)); // 1B USDC
+market.setTVL(ethers.utils.parseUnits('1000000000', 18)); // 1B USDC
 // Required collateral: 1B / 100 = 10M USDC
 ```
 
 ### Scenario 2: Low TVL Market (18 decimals)
 ```solidity
-market.setReserves(0, 0, 0, 0, ethers.utils.parseUnits('5', 18)); // 5 USDC
+market.setTVL(ethers.utils.parseUnits('5', 18)); // 5 USDC
 // Required collateral: MIN_COLLATERAL = 1M (1e6 in contract, regardless of token decimals)
 ```
 
-### Scenario 3: Fast Dispute (Testing)
+### Scenario 3: Closed Market
+```solidity
+market.setIsLive(false); // Market is closed
+// This affects the isLive return value from marketState()
+```
+
+### Scenario 4: Custom Market Probability
+```solidity
+market.setYesChance(800000); // 80% YES probability
+// 800000 / 1000000 = 80%
+```
+
+### Scenario 5: Fast Dispute (Testing)
 ```solidity
 oracle.setEscalationPeriod(2); // 2 epochs = 10 minutes (for fast tests)
 // Or use Hardhat time manipulation: await time.increase(36 * 60 * 60); // Skip 36 hours
 ```
 
-### Scenario 4: Already Finalized (Cannot Dispute)
+### Scenario 6: Already Finalized (Cannot Dispute)
 ```solidity
 oracle.setStatus(true, MockOracle.VoteOption.Yes);
 // openDispute() will revert

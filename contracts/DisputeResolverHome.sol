@@ -134,15 +134,12 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
     function openDispute(address _oracle, VoteOption _status, string calldata _reason) external {
         if (_status == VoteOption.Pending) revert Errors.CannotDisputeWithPendingStatus();
         if (bytes(_reason).length > MAX_REASON_LENGTH) revert Errors.ReasonTooLong();
-        address market = getMarketAddress(_oracle);
         Dispute storage dispute = disputes[_oracle];
         if (dispute.state != DisputeState.NotActive) revert Errors.DisputeAlreadyOpened();
         if (!_canWeStartDispute(_oracle, _status)) revert Errors.MarketState();
 
-        uint calculated = _getMarketTVL(market) / COLLATERAL_DIVISOR;
-        uint amount = calculated < MINIMUM_COLLATERAL ? MINIMUM_COLLATERAL : calculated;
+        (uint256 amount, address marketToken) = getDisputeCollateral(_oracle);
         if (amount > type(uint96).max) revert Errors.CollateralAmountTooLarge();
-        address marketToken = getCoinForMarket(market);
         marketToken.safeTransferFrom(msg.sender, address(this), amount);
         uint timeForDispute = _getTimeFromOracle(_oracle);
         dispute.state = DisputeState.Active;
@@ -582,20 +579,43 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
     // GETTERS
     ////////////////////////////////////////////////////////////////////////////////
 
+    /// @notice Calculate required collateral amount for opening a dispute
+    /// @param oracle Oracle address to dispute
+    /// @return collateralAmount Required collateral amount (1% of market TVL, min MINIMUM_COLLATERAL)
+    /// @return collateralToken Address of the collateral token
+    function getDisputeCollateral(
+        address oracle
+    ) public view returns (uint256 collateralAmount, address collateralToken) {
+        address market = getMarketAddress(oracle);
+        (uint256 tvl, address marketToken) = _getMarketInfo(market);
+        uint256 calculated = tvl / COLLATERAL_DIVISOR;
+        collateralAmount = calculated < MINIMUM_COLLATERAL ? MINIMUM_COLLATERAL : calculated;
+        collateralToken = marketToken;
+    }
+
     function getMarketAddress(address oracle) public view returns (address) {
+        // First try AMM market
         (bool success, bytes memory response) = marketFactory.staticcall(
             abi.encodeWithSignature("getMarketByPoll(address)", oracle)
         );
-        if (!success) revert Errors.Fail();
-        address marketAddress = abi.decode(response, (address));
-        if (marketAddress == address(0)) revert Errors.MarketNotFound();
-        return marketAddress;
-    }
+        if (success) {
+            address marketAddress = abi.decode(response, (address));
+            if (marketAddress != address(0)) {
+                return marketAddress;
+            }
+        }
 
-    function getCoinForMarket(address market) public view returns (address) {
-        (bool success, bytes memory response) = market.staticcall(abi.encodeWithSignature("collateralToken()"));
-        if (!success) revert Errors.Fail();
-        return abi.decode(response, (address));
+        // Then try PariMutuel market
+        (success, response) = marketFactory.staticcall(abi.encodeWithSignature("getPariMutuelByPoll(address)", oracle));
+        if (success) {
+            address marketAddress = abi.decode(response, (address));
+            if (marketAddress != address(0)) {
+                return marketAddress;
+            }
+        }
+
+        // No market found
+        revert Errors.MarketNotFound();
     }
 
     function getDisputeInfo(
@@ -701,11 +721,10 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
         if (_isBlocked(_tokenId)) revert Errors.TokenBlocked(_tokenId);
     }
 
-    function _getMarketTVL(address market) internal view returns (uint256) {
-        (bool success, bytes memory response) = market.staticcall(abi.encodeWithSignature("getReserves()"));
-        if (!success) revert Errors.TVL();
-        (, , , , uint256 collateralTvl) = abi.decode(response, (uint112, uint112, uint256, uint256, uint256));
-        return collateralTvl;
+    function _getMarketInfo(address market) internal view returns (uint256 collateralTvl, address marketToken) {
+        (bool success, bytes memory response) = market.staticcall(abi.encodeWithSignature("marketState()"));
+        if (!success) revert Errors.MarketInfo();
+        (, collateralTvl, , marketToken) = abi.decode(response, (bool, uint256, uint24, address));
     }
 
     function _getTimeFromOracle(address oracle) internal view returns (uint256) {
