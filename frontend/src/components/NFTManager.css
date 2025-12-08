@@ -1,0 +1,678 @@
+/* NFT Manager - New Design */
+.nft-manager-new {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.manager-header-new {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-title-section h2 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.header-subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+}
+
+.power-summary-new {
+  display: flex;
+  gap: 16px;
+}
+
+.power-stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.power-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.power-stat > * {
+  position: relative;
+  z-index: 1;
+}
+
+.power-stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+.power-stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.power-stat-value.secondary {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.power-stat-value.pending {
+  color: rgba(245, 158, 11, 0.9);
+}
+
+/* Tabs */
+.tabs-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tabs-new {
+  display: flex;
+  gap: 8px;
+}
+
+/* Shimmer Button */
+@property --shimmer-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes shimmer-spin {
+  to {
+    --shimmer-angle: 360deg;
+  }
+}
+
+.shimmer-button-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5px;
+  background: #000;
+  border-radius: 9999px;
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.shimmer-glow {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from var(--shimmer-angle), transparent 25%, rgba(255, 255, 255, 0.8), transparent 50%);
+  animation: shimmer-spin 2.5s linear infinite;
+}
+
+.shimmer-button-inner {
+  position: relative;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: #151515;
+  border-radius: 9999px;
+  transition: background 0.3s ease;
+}
+
+.shimmer-button-wrapper:hover .shimmer-button-inner {
+  background: #1a1a1a;
+}
+
+/* Green variant for Wrap */
+.shimmer-button-wrapper.green .shimmer-glow {
+  background: conic-gradient(from var(--shimmer-angle), transparent 25%, #10b981, transparent 50%);
+}
+
+/* Orange variant for Unwrap */
+.shimmer-button-wrapper.orange .shimmer-glow {
+  background: conic-gradient(from var(--shimmer-angle), transparent 25%, #f59e0b, transparent 50%);
+}
+
+/* Action container for shimmer buttons */
+.shimmer-action-container {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.shimmer-action-container .shimmer-button-wrapper {
+  border: none;
+  background: none;
+}
+
+.shimmer-action-container .shimmer-button-inner {
+  padding: 14px 32px;
+  font-size: 15px;
+}
+
+/* NFT Card Shimmer Button */
+.nft-shimmer-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 16px;
+  padding: 1.5px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+}
+
+.nft-shimmer-btn .shimmer-glow {
+  position: absolute;
+  inset: 0;
+  animation: shimmer-spin 2.5s linear infinite;
+}
+
+.nft-shimmer-btn.green .shimmer-glow {
+  background: conic-gradient(from var(--shimmer-angle), transparent 25%, #10b981, transparent 50%);
+}
+
+.nft-shimmer-btn.orange .shimmer-glow {
+  background: conic-gradient(from var(--shimmer-angle), transparent 25%, #f59e0b, transparent 50%);
+}
+
+.nft-shimmer-btn .shimmer-button-inner {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 16px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: #151515;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.nft-shimmer-btn:hover:not(:disabled) .shimmer-button-inner {
+  background: #1a1a1a;
+}
+
+.nft-shimmer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tab-new {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.tab-new::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tab-new > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tab-new:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-new.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+/* Error Banner */
+.error-banner-new {
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  color: rgba(239, 68, 68, 0.9);
+  padding: 14px 18px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.15px;
+}
+
+/* Info Banner */
+.info-banner-new {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(5px);
+  border: none;
+  padding: 18px 22px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.info-icon {
+  font-size: 20px;
+  opacity: 0.8;
+}
+
+.info-banner-new p {
+  margin: 4px 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+}
+
+.info-banner-new .highlight {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-state-new {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 24px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.empty-state-new::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.empty-state-new > * {
+  position: relative;
+  z-index: 1;
+}
+
+.empty-state-new .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.empty-state-new h3 {
+  margin: 0 0 8px 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.15px;
+}
+
+.empty-state-new p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+}
+
+/* NFT Grid */
+.nft-grid-new {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* NFT Card - New Design */
+.nft-card-new {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(5px);
+  border: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.nft-card-new:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nft-card-new.selected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nft-card-new.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nft-card-inner {
+  padding: 10px;
+}
+
+/* NFT Image */
+.nft-image-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nft-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+/* Status Badge */
+.nft-status-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nft-status-badge.ready {
+  background: rgba(16, 185, 129, 0.8);
+}
+
+.nft-status-badge.locked {
+  background: rgba(239, 68, 68, 0.7);
+}
+
+.nft-status-badge.unwrapped {
+  background: rgba(245, 158, 11, 0.7);
+}
+
+.nft-status-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Selected Badge */
+.nft-selected-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  color: #151515;
+  animation: popIn 0.15s ease;
+}
+
+.nft-selected-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+/* Card Content */
+.nft-card-content {
+  padding: 14px 8px 8px;
+}
+
+.nft-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.nft-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nft-card-header svg {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.nft-subtitle {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.nft-power-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nft-power-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.nft-power-value {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Action Bar */
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 20px;
+  margin-top: 24px;
+}
+
+.action-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.action-info span:first-child {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.action-power {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.action-button-new {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 16px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button-new.wrap {
+  background: rgba(16, 185, 129, 0.15);
+  color: rgba(16, 185, 129, 1);
+}
+
+.action-button-new.wrap:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.action-button-new.unwrap {
+  background: rgba(245, 158, 11, 0.15);
+  color: rgba(245, 158, 11, 1);
+}
+
+.action-button-new.unwrap:hover:not(:disabled) {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+.action-button-new:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .manager-header-new {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .power-summary-new {
+    justify-content: space-between;
+  }
+
+  .power-stat {
+    flex: 1;
+    align-items: center;
+  }
+
+  .tabs-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabs-new {
+    flex-direction: column;
+  }
+  
+  .shimmer-button-wrapper {
+    align-self: center;
+  }
+
+  .nft-grid-new {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .action-bar {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .action-button-new {
+    width: 100%;
+  }
+}

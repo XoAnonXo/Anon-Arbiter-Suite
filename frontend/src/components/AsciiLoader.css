@@ -1,0 +1,285 @@
+.ascii-loader-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: #151515;
+}
+
+/* Skeleton Background */
+.skeleton-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0;
+  opacity: 0.4;
+}
+
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 80px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-header-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.skeleton-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.skeleton-nav-item {
+  width: 80px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skeleton-button {
+  width: 100px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-address {
+  width: 120px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.skeleton-page-header {
+  margin-bottom: 32px;
+}
+
+.skeleton-page-title {
+  width: 200px;
+  height: 32px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-page-subtitle {
+  width: 350px;
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.skeleton-filter {
+  width: 80px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeleton-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.skeleton-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.skeleton-badge {
+  width: 60px;
+  height: 24px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title {
+  width: 250px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card-body {
+  margin-bottom: 16px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line.long { width: 100%; }
+.skeleton-line.medium { width: 75%; }
+.skeleton-line.short { width: 50%; }
+
+.skeleton-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.skeleton-btn {
+  flex: 1;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ASCII Logo Overlay */
+.ascii-logo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.ascii-logo-container {
+  width: 20vw;
+  height: 20vw;
+  min-width: 200px;
+  min-height: 200px;
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 0 60px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(0, 0, 0, 0.3);
+}
+
+.loader-text {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 24px 0 0 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .skeleton-header {
+    padding: 12px 20px;
+  }
+  
+  .skeleton-header-left {
+    gap: 20px;
+  }
+  
+  .skeleton-nav {
+    display: none;
+  }
+  
+  .ascii-logo-container {
+    width: 50vw;
+    height: 50vw;
+  }
+}
+
+

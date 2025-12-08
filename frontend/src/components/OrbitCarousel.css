@@ -1,0 +1,170 @@
+.orbit-carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  min-height: 400px;
+  margin-bottom: 40px;
+}
+
+.orbit-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit-center-card {
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px 32px;
+  width: 220px;
+  text-align: center;
+}
+
+.orbit-card-content {
+  margin-bottom: 16px;
+}
+
+.orbit-card-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.3;
+}
+
+.orbit-card-type {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.orbit-card-status {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #f59e0b;
+}
+
+.orbit-card-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.orbit-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.orbit-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.orbit-vote-btn {
+  padding: 10px 32px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.orbit-vote-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.orbit-item {
+  position: absolute;
+}
+
+.orbit-item-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.orbit-logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.orbit-logo:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.orbit-logo.active {
+  border-color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .orbit-carousel {
+    min-height: 350px;
+    padding: 10px;
+  }
+
+  .orbit-center-card {
+    width: 180px;
+    padding: 16px 20px;
+  }
+
+  .orbit-card-title {
+    font-size: 15px;
+  }
+
+  .orbit-card-type,
+  .orbit-card-status {
+    font-size: 12px;
+  }
+
+  .orbit-vote-btn {
+    padding: 8px 24px;
+    font-size: 13px;
+  }
+}
+
+

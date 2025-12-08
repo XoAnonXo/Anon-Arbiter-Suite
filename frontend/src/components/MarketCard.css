@@ -1,0 +1,537 @@
+.market-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.market-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.market-card.in-arbitration {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.market-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.status-finalized {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.status-arbitration {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.our-arbiter-badge {
+  padding: 0.25rem 0.5rem;
+  background: rgba(10, 186, 181, 0.2);
+  color: #0ABAB5;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.market-type-badge {
+  padding: 0.25rem 0.5rem;
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.market-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Question Section */
+.market-question-section {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.market-question {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.market-description {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* AI Resolution Reasoning */
+.resolution-reasoning-section {
+  padding: 0.875rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.resolution-reasoning-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.ai-icon {
+  font-size: 1rem;
+}
+
+.resolution-reasoning-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a78bfa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resolution-reasoning-content {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  max-height: 150px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.resolution-reasoning-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.resolution-reasoning-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.resolution-reasoning-content::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 2px;
+}
+
+.resolution-reasoning-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+
+/* Rules Section */
+.market-rules-section {
+  margin-top: 0.5rem;
+}
+
+.rules-toggle {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  transition: color 0.2s;
+}
+
+.rules-toggle:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.market-rules {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border-left: 3px solid rgba(10, 186, 181, 0.5);
+}
+
+.market-rules p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.market-status-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+}
+
+.outcome-value {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.outcome-yes {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.outcome-no {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.outcome-unknown {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+}
+
+.outcome-pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.status-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-value.finalized {
+  color: #10b981;
+}
+
+.status-value.not-finalized {
+  color: #fbbf24;
+}
+
+.status-value.tvl-value {
+  color: #10b981;
+  font-family: monospace;
+}
+
+.market-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.5rem;
+}
+
+.dispute-button {
+  background: linear-gradient(135deg, #1877F2, #166FE5);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dispute-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+}
+
+.arbitration-notice {
+  color: #fbbf24;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.resolution-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  color: #93c5fd;
+  font-size: 0.85rem;
+}
+
+.resolution-icon {
+  font-size: 1rem;
+  color: #3b82f6;
+}
+
+.market-footer {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-addresses {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-family: monospace;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #0ABAB5;
+  text-decoration: underline;
+}
+
+.footer-separator {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.7rem;
+}
+
+.arbiter-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-family: monospace;
+  transition: color 0.2s;
+}
+
+.arbiter-link:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Expanded card state */
+.market-card.expanded {
+  border-color: rgba(10, 186, 181, 0.3);
+}
+
+/* Dispute Form */
+.dispute-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dispute-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.close-form-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+
+.close-form-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dispute-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dispute-form-field label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dispute-status-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-option {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.status-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.status-option.selected {
+  background: rgba(24, 119, 242, 0.2);
+  border-color: #1877F2;
+  color: #1877F2;
+}
+
+.dispute-form-field textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+
+.dispute-form-field textarea:focus {
+  outline: none;
+  border-color: #1877F2;
+}
+
+.dispute-form-field textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dispute-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-dispute-btn {
+  flex: 2;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #1877F2, #166FE5);
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.submit-dispute-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+}
+
+.submit-dispute-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Collateral Notice */
+.collateral-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 8px;
+}
+
+.collateral-notice-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.collateral-notice-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.collateral-notice-title {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.collateral-notice-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  font-family: monospace;
+}
+
+.collateral-notice-info {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
