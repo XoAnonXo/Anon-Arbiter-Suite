@@ -724,7 +724,7 @@ contract DisputeResolverHome is ERC721Enumerable, OApp, OAppOptionsType3 {
     function _getMarketInfo(address market) internal view returns (uint256 collateralTvl, address marketToken) {
         (bool success, bytes memory response) = market.staticcall(abi.encodeWithSignature("marketState()"));
         if (!success) revert Errors.MarketInfo();
-        (, collateralTvl, , marketToken) = abi.decode(response, (bool, uint256, uint24, address));
+        (, collateralTvl, , marketToken) = abi.decode(response, (bool, uint256, uint32, address));
     }
 
     function _getTimeFromOracle(address oracle) internal view returns (uint256) {

@@ -10,10 +10,11 @@ import { OrbitCarousel } from './components/OrbitCarousel';
 import { AsciiLoader } from './components/AsciiLoader';
 import { EmptyStateAscii } from './components/EmptyStateAscii';
 import { ToastProvider, txToast } from './components/Toast';
+import DisputeResolverHomeAbi from "./config/abi/DisputeResolverHomeAbi.json"
 import './components/AsciiLoader.css';
 import './components/Toast.css';
 import './components/MarketCard.css';
-import { DisputeState, SONIC_CHAIN, CONTRACTS, ANON_STAKING_ABI, DISPUTE_RESOLVER_ABI, ERC20_ABI, AMM_MARKET_ABI, PARIMUTUEL_MARKET_ABI } from './config/contracts';
+import { DisputeState, SONIC_CHAIN, CONTRACTS, ANON_STAKING_ABI, ERC20_ABI } from './config/contracts';
 import './App.css';
 
 declare global {
@@ -114,57 +115,40 @@ function App() {
     }
   };
 
-  const openDispute = async (pollAddress: string, marketAddress: string, collateralToken: string, status: number, reason: string) => {
+  const openDispute = async (pollAddress: string, status: number, reason: string) => {
     if (!window.ethereum || !address) {
       txToast.info('Wallet Required', 'Please connect your wallet to open a dispute');
       return;
     }
-
+    console.log(pollAddress);
+    
     setOpeningDisputeFor(pollAddress);
     const toastId = txToast.pending('Opening Dispute...', 'Fetching market data...');
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider);
+      console.log(provider);
+      
       const signer = provider.getSigner();
 
-      const disputeResolver = new ethers.Contract(CONTRACTS.DISPUTE_RESOLVER_HOME, DISPUTE_RESOLVER_ABI, signer);
+      const disputeResolver = new ethers.Contract(CONTRACTS.DISPUTE_RESOLVER_HOME, DisputeResolverHomeAbi, signer);
 
-      // Try to get TVL from market - try AMM first, then Parimutuel
-      let tvl: ethers.BigNumber;
+      // Get collateral amount and token from the contract
+      const [collateralAmount, tokenAddress] = await disputeResolver.getDisputeCollateral(pollAddress);
+      console.log('[openDispute] Required collateral:', ethers.utils.formatUnits(collateralAmount, 6), 'Token:', tokenAddress);
 
-      try {
-        // Try AMM market (getReserves)
-        const ammMarket = new ethers.Contract(marketAddress, AMM_MARKET_ABI, provider);
-        const reserves = await ammMarket.getReserves();
-        tvl = reserves.tvl;
-        console.log('[openDispute] AMM market TVL:', ethers.utils.formatUnits(tvl, 6));
-      } catch {
-        // Try Parimutuel market (marketState)
-        const pariMarket = new ethers.Contract(marketAddress, PARIMUTUEL_MARKET_ABI, provider);
-        const state = await pariMarket.marketState();
-        tvl = state.collateralTvl;
-        console.log('[openDispute] Parimutuel market TVL:', ethers.utils.formatUnits(tvl, 6));
-      }
-
-      // Calculate deposit: 1% of TVL, minimum 1 USDC (1e6)
-      const MINIMUM_COLLATERAL = ethers.BigNumber.from('1000000'); // 1 USDC
-      const depositAmount = tvl.div(100); // 1% of TVL
-      const finalDeposit = depositAmount.lt(MINIMUM_COLLATERAL) ? MINIMUM_COLLATERAL : depositAmount;
-
-      // Use collateral token from the hook, fallback to USDC if not available
-      const tokenAddress = collateralToken || CONTRACTS.USDC;
       const token = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
       const [decimals, symbol] = await Promise.all([
         token.decimals(),
         token.symbol(),
       ]);
 
-      const formattedDeposit = ethers.utils.formatUnits(finalDeposit, decimals);
+      const formattedDeposit = ethers.utils.formatUnits(collateralAmount, decimals);
       console.log(`[openDispute] Required deposit: ${formattedDeposit} ${symbol}`);
 
       // Check user's token balance
       const balance = await token.balanceOf(address);
-      if (balance.lt(finalDeposit)) {
+      if (balance.lt(collateralAmount)) {
         txToast.error(toastId, 'Insufficient Balance', `You need at least ${formattedDeposit} ${symbol} to open this dispute`);
         setOpeningDisputeFor(null);
         return;
@@ -174,10 +158,10 @@ function App() {
       txToast.pending('Opening Dispute...', `Step 1/2: Checking ${symbol} allowance...`);
       const allowance = await token.allowance(address, CONTRACTS.DISPUTE_RESOLVER_HOME);
 
-      if (allowance.lt(finalDeposit)) {
+      if (allowance.lt(collateralAmount)) {
         txToast.pending('Opening Dispute...', `Step 1/2: Approving ${formattedDeposit} ${symbol}...`);
         // Approve exact amount + buffer for safety
-        const approveAmount = finalDeposit.mul(2);
+        const approveAmount = collateralAmount.mul(2);
         const approveTx = await token.approve(CONTRACTS.DISPUTE_RESOLVER_HOME, approveAmount);
         await approveTx.wait();
       }
@@ -460,8 +444,8 @@ function App() {
                     <MarketCard
                       key={`${market.pollAddress}-${market.marketAddress}`}
                       market={market}
-                      onOpenDispute={(pollAddress, marketAddress, collateralToken, status, reason) => {
-                        openDispute(pollAddress, marketAddress, collateralToken, status, reason);
+                      onOpenDispute={(pollAddress, _marketAddress, _collateralToken, status, reason) => {
+                        openDispute(pollAddress, status, reason);
                       }}
                       isOpeningDispute={openingDisputeFor === market.pollAddress}
                     />

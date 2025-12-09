@@ -1,3 +1,4 @@
+import DisputeResolverHomeAbi from "./abi/DisputeResolverHomeAbi.json"
 /**
  * Contract Configuration
  * 
@@ -10,22 +11,22 @@
  */
 export const CONTRACTS = {
   // Arbiter Suite contracts (redeployed Dec 8, 2024 with real MarketFactory)
-  DISPUTE_RESOLVER_HOME: '0xd447C3a4f4CA6036c2e51ccD0aCB45F7BFb1a5BE',
+  DISPUTE_RESOLVER_HOME: '0x3F4Eca74CB96F81a001C25e88b2C1b219647D8DB',
   ANON_STAKING: '0x780aE218A02A20b69aC3Da7Bf80c08A70A330a5e',
   VAULT: '0xebe5930DF4E11b496fe8d55D1e7aAc76BB7eeE73',
-  
+
   // Production Sonic Market contracts
   USDC: '0xc6020e5492c2892fD63489797ce3d431ae101d5e',
   MARKET_FACTORY: '0x017277d36f80422a5d0aA5B8C93f5ae57BA2A317',
   ORACLE: '0x9492a0c32Fb22d1b8940e44C4D69f82B6C3cb298',
-  
+
   // Standard addresses
   MULTICALL3: '0xcA11bde05977b3631167028862bE2a173976CA11',
 } as const;
 
 /** Scale factors for the protocol */
 export const SCALE = {
-  ONE: BigInt('1000000000000000000'),        // 10^18 Wei precision
+  ONE: BigInt('1000000000000000000'),         // 10^18 Wei precision
   BPS_DENOMINATOR: 1_000_000,                 // Fee denominator (Uniswap V3 style)
   CANDLE_PRICE_SCALE: 1_000_000_000,          // Price/odds scale
   EPOCH_LENGTH: 300,                          // 5 minutes per epoch
@@ -53,37 +54,8 @@ export const SONIC_CHAIN = {
   },
 } as const;
 
-/**
- * DisputeResolverHome ABI
- * Contains read/write functions for dispute management and voting
- */
-export const DISPUTE_RESOLVER_ABI = [
-  // Read functions
-  'function getDisputeInfo(address oracle) view returns (address disputer, bool isCollateralTaken, uint8 state, uint8 draftStatus, uint8 finalStatus, uint256 disputerDeposit, uint256 endAt, address marketToken, string reason)',
-  'function getVoteCount(address oracle, uint8 option) view returns (uint256)',
-  'function getVoteRecordInfo(address oracle, uint256 tokenId) view returns (uint256 power, bool isClaimed, uint8 votedFor)',
-  'function hasVoted(address oracle, uint256 tokenId) view returns (bool)',
-  'function nftInfos(uint256 tokenId) view returns (uint96 power, uint48 voteDisabledUntil, uint48 unstakeAvailableAt, uint48 validTo)',
-  'function balanceOf(address owner) view returns (uint256)',
-  'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
-  'function canVote(uint256 tokenId) view returns (bool)',
-  'function getRequiredCollateral(address oracle) view returns (uint256)',
-  'function getCoinForMarket(address market) view returns (address)',
-  'function getMarketAddress(address oracle) view returns (address)',
-  
-  // Write functions
-  'function vote(address oracle, uint8 status, uint256[] tokenIds)',
-  'function depositFor(address account, uint256[] tokenIds) returns (bool)',
-  'function withdrawTo(address account, uint256[] tokenIds) returns (bool)',
-  'function claimVoteRewards(address oracle, uint256[] tokenIds) returns (bool)',
-  'function openDispute(address oracle, uint8 status, string reason)',
-  
-  // Events
-  'event Vote(address indexed voter, address indexed oracle, uint256 power, uint8 status)',
-  'event DisputeCreated(address indexed disputer, address indexed oracle, uint8 draftStatus, uint256 amount, address marketToken)',
-  'event DisputeResolved(address indexed oracle, uint8 finalStatus, address resolver)',
-] as const;
 
+export const DISPUTE_RESOLVER_ABI = DisputeResolverHomeAbi
 /**
  * ERC20 ABI for token approvals
  */

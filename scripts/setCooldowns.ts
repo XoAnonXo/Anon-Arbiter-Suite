@@ -8,7 +8,7 @@ import { ethers } from 'hardhat'
  * for frontend testing purposes
  */
 async function main() {
-    const DISPUTE_RESOLVER_HOME = '0xd447C3a4f4CA6036c2e51ccD0aCB45F7BFb1a5BE'
+    const DISPUTE_RESOLVER_HOME = '0x3F4Eca74CB96F81a001C25e88b2C1b219647D8DB'
     const NEW_COOLDOWN = 120 // 2 minutes in seconds
 
     console.log(`\n========================================`)
