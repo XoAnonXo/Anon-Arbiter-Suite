@@ -33,6 +33,12 @@ export const SCALE = {
   USDC_DECIMALS: 6,                           // USDC has 6 decimals
 } as const;
 
+/** Protocol constants for dispute resolution */
+export const PROTOCOL_CONSTANTS = {
+  BPS: 1_000_000,                             // Basis points denominator
+  VOTERS_SHARE_BPS: 800_000,                  // 80% of collateral goes to voters
+} as const;
+
 /** Backend indexer URL for faster dispute queries */
 export const INDEXER_URL = 'https://sonicmarketindexer-production.up.railway.app';
 

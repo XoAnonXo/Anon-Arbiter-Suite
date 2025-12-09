@@ -124,14 +124,14 @@ function App() {
       return;
     }
     console.log(pollAddress);
-    
+
     setOpeningDisputeFor(pollAddress);
     const toastId = txToast.pending('Opening Dispute...', 'Fetching market data...');
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider);
       console.log(provider);
-      
+
       const signer = provider.getSigner();
 
       const disputeResolver = new ethers.Contract(CONTRACTS.DISPUTE_RESOLVER_HOME, DisputeResolverHomeAbi, signer);
@@ -424,26 +424,26 @@ function App() {
                 />
               ) : (
                 <><MarketsVariations
-                      markets={filteredMarkets}
-                      userNFTs={wrappedNFTs}
-                      onOpenDispute={(pollAddress, status, reason) => {
-                        openDispute(pollAddress, status, reason);
-                      } }
-                      onVoteSuccess={() => {
-                        refetchNFTs();
-                        refetchDisputes();
-                      } }
-                      openingDisputeFor={openingDisputeFor} /><div className="markets-grid">
-                        {filteredMarkets.map(market => (
-                          <MarketCard
-                            key={`${market.pollAddress}-${market.marketAddress}`}
-                            market={market}
-                            onOpenDispute={(pollAddress, _marketAddress, _collateralToken, status, reason) => {
-                              openDispute(pollAddress, status, reason);
-                            } }
-                            isOpeningDispute={openingDisputeFor === market.pollAddress} />
-                        ))}
-                      </div></>
+                  markets={filteredMarkets}
+                  userNFTs={wrappedNFTs}
+                  onOpenDispute={(pollAddress, _marketAddress, _collateralToken, status, reason) => {
+                    openDispute(pollAddress, status, reason);
+                  }}
+                  onVoteSuccess={() => {
+                    refetchNFTs();
+                    refetchDisputes();
+                  }}
+                  openingDisputeFor={openingDisputeFor} /><div className="markets-grid">
+                    {filteredMarkets.map(market => (
+                      <MarketCard
+                        key={`${market.pollAddress}-${market.marketAddress}`}
+                        market={market}
+                        onOpenDispute={(pollAddress, _marketAddress, _collateralToken, status, reason) => {
+                          openDispute(pollAddress, status, reason);
+                        }}
+                        isOpeningDispute={openingDisputeFor === market.pollAddress} />
+                    ))}
+                  </div></>
               )}
             </>
           )}
