@@ -21,6 +21,8 @@ export { EmptyStateAscii } from './EmptyStateAscii';
 
 // Interactive Components
 export { OrbitCarousel } from './OrbitCarousel';
+export { HowItWorksVariations, Variation1Bento, Variation2Timeline, Variation3Accordion, Variation4Tabs, Variation5IconCards, Variation6Stepper } from './HowItWorksVariations';
+export { MarketsVariations, Variation1Grid, Variation2Table, Variation3Compact, Variation4List, Variation5Kanban, Variation6Split } from './MarketsVariations';
 
 // Toast Notifications
 export { ToastProvider, txToast, toast } from './Toast';

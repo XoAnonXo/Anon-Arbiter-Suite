@@ -38,6 +38,12 @@ const UnlockIcon = () => (
   </svg>
 );
 
+const AlertIcon = () => (
+  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 9V13M12 17H12.01M10.29 3.86L1.82 18C1.64 18.3 1.55 18.64 1.55 19C1.55 19.36 1.64 19.7 1.82 20C2 20.3 2.26 20.56 2.56 20.74C2.87 20.91 3.21 21 3.56 21H20.44C20.79 21 21.13 20.91 21.44 20.74C21.74 20.56 22 20.3 22.18 20C22.36 19.7 22.45 19.36 22.45 19C22.45 18.64 22.36 18.3 22.18 18L13.71 3.86C13.53 3.56 13.27 3.31 12.96 3.13C12.66 2.95 12.31 2.86 11.96 2.86C11.61 2.86 11.26 2.95 10.96 3.13C10.65 3.31 10.39 3.56 10.29 3.86Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 // Generate a unique image URL based on token ID
 const getImageUrl = (tokenId: string) => {
   const images = [
@@ -71,34 +77,34 @@ interface NFTCardProps {
 const NFTCard = ({ nft, onAction, actionLabel, actionColor, loading, disabled }: NFTCardProps) => {
   const imageUrl = getImageUrl(nft.tokenId);
   const powerFormatted = parseFloat(nft.power).toLocaleString();
+  const penaltyFormatted = parseFloat(nft.penaltyAmount).toLocaleString();
+  
+  // Determine status for badge
+  const getStatusBadge = () => {
+    if (nft.isBlocked) {
+      return { class: 'blocked', icon: <AlertIcon />, label: 'Blocked' };
+    }
+    if (nft.isWrapped) {
+      return nft.canVote 
+        ? { class: 'ready', icon: <CheckIcon />, label: 'Ready' }
+        : { class: 'locked', icon: <LockIcon />, label: 'Locked' };
+    }
+    return { class: 'unwrapped', icon: <UnlockIcon />, label: 'Unwrapped' };
+  };
+  
+  const status = getStatusBadge();
   
   return (
-    <div className={`nft-card-new ${disabled ? 'disabled' : ''}`}>
+    <div className={`nft-card-new ${disabled ? 'disabled' : ''} ${nft.isBlocked ? 'blocked' : ''}`}>
       <div className="nft-card-inner">
         {/* Card Image Section */}
         <div className="nft-image-container">
           <img src={imageUrl} alt={`NFT #${nft.tokenId}`} className="nft-image" />
           
           {/* Status Badge */}
-          <div className={`nft-status-badge ${nft.isWrapped ? (nft.canVote ? 'ready' : 'locked') : 'unwrapped'}`}>
-            {nft.isWrapped ? (
-              nft.canVote ? (
-                <>
-                  <CheckIcon />
-                  <span>Ready</span>
-                </>
-              ) : (
-                <>
-                  <LockIcon />
-                  <span>Locked</span>
-                </>
-              )
-            ) : (
-              <>
-                <UnlockIcon />
-                <span>Unwrapped</span>
-              </>
-            )}
+          <div className={`nft-status-badge ${status.class}`}>
+            {status.icon}
+            <span>{status.label}</span>
           </div>
         </div>
 
@@ -109,16 +115,31 @@ const NFTCard = ({ nft, onAction, actionLabel, actionColor, loading, disabled }:
             <PowerIcon />
           </div>
 
-          <p className="nft-subtitle">{nft.isWrapped ? 'Wrapped • Can Vote' : 'Staked • Ready to Wrap'}</p>
+          <p className="nft-subtitle">
+            {nft.isBlocked 
+              ? 'Blocked • Penalty Required' 
+              : nft.isWrapped 
+                ? nft.canVote ? 'Wrapped • Can Vote' : 'Wrapped • Cooldown'
+                : 'Staked • Ready to Wrap'
+            }
+          </p>
 
           <div className="nft-power-row">
             <span className="nft-power-label">Voting Power</span>
             <span className="nft-power-value">{powerFormatted}</span>
           </div>
 
+          {/* Penalty Warning */}
+          {nft.isBlocked && parseFloat(nft.penaltyAmount) > 0 && (
+            <div className="nft-penalty-warning">
+              <AlertIcon />
+              <span>Penalty: {penaltyFormatted} tokens</span>
+            </div>
+          )}
+
           {/* Action Button */}
           <button 
-            className={`nft-shimmer-btn ${actionColor}`}
+            className={`nft-shimmer-btn ${nft.isBlocked ? 'red' : actionColor}`}
             onClick={(e) => {
               e.stopPropagation();
               onAction();
@@ -127,7 +148,7 @@ const NFTCard = ({ nft, onAction, actionLabel, actionColor, loading, disabled }:
           >
             <div className="shimmer-glow" />
             <span className="shimmer-button-inner">
-              {loading ? 'Processing...' : actionLabel}
+              {loading ? 'Processing...' : nft.isBlocked ? 'Pay Penalty' : actionLabel}
             </span>
           </button>
         </div>
@@ -203,6 +224,32 @@ export function NFTManager({ wrappedNFTs, unwrappedNFTs, onUpdate }: NFTManagerP
       const errorMsg = err instanceof Error ? err.message : 'Unwrap failed';
       setError(errorMsg);
       txToast.error(toastId, 'Unwrap Failed', errorMsg);
+    } finally {
+      setLoadingTokenId(null);
+    }
+  };
+
+  const handlePayPenalty = async (tokenId: string) => {
+    setLoadingTokenId(tokenId);
+    setError(null);
+    const toastId = txToast.pending(`Paying penalty for NFT #${tokenId}...`, 'Processing payment');
+
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider);
+      const signer = provider.getSigner();
+      
+      const disputeResolver = new ethers.Contract(CONTRACTS.DISPUTE_RESOLVER_HOME, DISPUTE_RESOLVER_ABI, signer);
+
+      const tx = await disputeResolver.payPenalty(ethers.BigNumber.from(tokenId));
+      txToast.pending(`Paying penalty for NFT #${tokenId}...`, 'Waiting for confirmation');
+      await tx.wait();
+
+      txToast.success(toastId, 'Penalty Paid!', `NFT #${tokenId} is now unblocked`, tx.hash);
+      onUpdate();
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Payment failed';
+      setError(errorMsg);
+      txToast.error(toastId, 'Payment Failed', errorMsg);
     } finally {
       setLoadingTokenId(null);
     }
@@ -287,19 +334,31 @@ export function NFTManager({ wrappedNFTs, unwrappedNFTs, onUpdate }: NFTManagerP
               <p>Wrap your staked ANON NFTs to start voting on disputes!</p>
             </div>
           ) : (
-            <div className="nft-grid-new">
-              {wrappedNFTs.map(nft => (
-                <NFTCard
-                  key={nft.tokenId}
-                  nft={nft}
-                  onAction={() => handleUnwrap(nft.tokenId)}
-                  actionLabel="Unwrap"
-                  actionColor="orange"
-                  loading={loadingTokenId === nft.tokenId}
-                  disabled={!nft.canVote}
-                />
-              ))}
-            </div>
+            <>
+              {/* Show blocked NFTs warning if any */}
+              {wrappedNFTs.some(nft => nft.isBlocked) && (
+                <div className="blocked-nfts-banner">
+                  <AlertIcon />
+                  <div>
+                    <strong>Some NFTs are blocked</strong>
+                    <p>Pay the penalty to unblock them and resume voting.</p>
+                  </div>
+                </div>
+              )}
+              <div className="nft-grid-new">
+                {wrappedNFTs.map(nft => (
+                  <NFTCard
+                    key={nft.tokenId}
+                    nft={nft}
+                    onAction={() => nft.isBlocked ? handlePayPenalty(nft.tokenId) : handleUnwrap(nft.tokenId)}
+                    actionLabel="Unwrap"
+                    actionColor="orange"
+                    loading={loadingTokenId === nft.tokenId}
+                    disabled={!nft.canVote && !nft.isBlocked}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}

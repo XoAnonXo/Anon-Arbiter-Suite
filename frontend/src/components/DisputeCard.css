@@ -378,4 +378,118 @@
   font-weight: 500;
 }
 
+/* Reward Pool Info */
+.reward-pool-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.reward-pool-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.reward-pool-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.reward-pool-note {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* Claim Rewards Section */
+.claim-rewards-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
+  border-radius: 16px;
+  margin-top: 20px;
+}
+
+.claim-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.claim-info p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.claim-rewards-btn {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.claim-rewards-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  transform: translateY(-1px);
+}
+
+.claim-rewards-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Voted NFTs Info */
+.voted-nfts-info {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+}
+
+.voted-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+}
+
+.voted-nfts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.voted-nft-badge {
+  padding: 6px 12px;
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #10b981;
+}
+
+.voted-nft-badge.claimed {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+}
+
 

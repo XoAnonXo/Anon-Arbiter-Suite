@@ -151,6 +151,28 @@ const erc20Interface = new ethers.utils.Interface([
 const MINIMUM_COLLATERAL = ethers.BigNumber.from('1000000'); // 1 USDC (6 decimals)
 const COLLATERAL_DIVISOR = 100; // 1% of TVL
 
+// Mock market in arbitration for testing/demo purposes
+const MOCK_MARKET_IN_ARBITRATION: Market = {
+  pollAddress: '0x0000000000000000000000000000000000000001',
+  marketAddress: '0x0000000000000000000000000000000000000002',
+  arbiter: CONTRACTS.DISPUTE_RESOLVER_HOME,
+  isFinalized: false,
+  status: MarketStatus.Pending,
+  arbitrationStarted: true, // In arbitration
+  collateralToken: CONTRACTS.USDC,
+  collateralSymbol: 'USDC',
+  collateralDecimals: 6,
+  isOurArbiter: true,
+  tvl: '50000000000', // 50,000 USDC
+  requiredCollateral: '500000000', // 500 USDC (1% of TVL)
+  marketType: 'amm',
+  question: 'MOCK ONE - Will the price of ETH exceed $5,000 by end of Q1 2025?',
+  description: 'This is a mock market for demonstration purposes, currently in arbitration.',
+  rules: 'Resolution based on the official ETH/USD price on major exchanges at midnight UTC on March 31, 2025.',
+  resolutionReason: undefined,
+  sources: undefined,
+};
+
 /**
  * Hook to fetch markets from on-chain that have our arbiter
  * 
@@ -429,21 +451,24 @@ export function useMarkets(onlyOurArbiter: boolean = true) {
         }
       }
 
-      // Calculate stats
-      const totalStats = {
-        total: allMarkets.length,
-        withOurArbiter: allMarkets.filter(m => m.isOurArbiter).length,
-        finalized: allMarkets.filter(m => m.isFinalized).length,
-        inArbitration: allMarkets.filter(m => m.arbitrationStarted).length,
-      };
-      setStats(totalStats);
-
-      console.log(`[useMarkets] Stats:`, totalStats);
-
       // Filter based on preference
       const filteredMarkets = onlyOurArbiter 
         ? allMarkets.filter(m => m.isOurArbiter)
         : allMarkets;
+
+      // Add mock market in arbitration for demo/testing
+      filteredMarkets.push(MOCK_MARKET_IN_ARBITRATION);
+
+      // Calculate stats (including mock market)
+      const totalStats = {
+        total: filteredMarkets.length,
+        withOurArbiter: filteredMarkets.filter(m => m.isOurArbiter).length,
+        finalized: filteredMarkets.filter(m => m.isFinalized).length,
+        inArbitration: filteredMarkets.filter(m => m.arbitrationStarted).length,
+      };
+      setStats(totalStats);
+
+      console.log(`[useMarkets] Stats:`, totalStats);
 
       // Sort: in arbitration first, then non-finalized, then finalized
       filteredMarkets.sort((a, b) => {

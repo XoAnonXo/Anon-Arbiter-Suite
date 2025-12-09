@@ -30,6 +30,8 @@ export interface UserNFT {
   unstakeAvailableAt: number;
   validTo: number;
   isWrapped: boolean;
+  penaltyAmount: string; // Amount of penalty if any (0 means no penalty)
+  isBlocked: boolean; // True if NFT has a penalty and can't vote/transfer
 }
 
 /**
@@ -72,17 +74,25 @@ export function useUserNFTs(address: string | undefined) {
         wrappedPromises.push(
           (async () => {
             const tokenId = await disputeResolver.tokenOfOwnerByIndex(address, i);
-            const info = await disputeResolver.nftInfos(tokenId);
-            const canVote = await disputeResolver.canVote(tokenId);
+            const [info, canVote, penaltyAmount] = await Promise.all([
+              disputeResolver.nftInfos(tokenId),
+              disputeResolver.canVote(tokenId),
+              disputeResolver.penalties(tokenId),
+            ]);
+
+            const penaltyAmountBN = ethers.BigNumber.from(penaltyAmount);
+            const isBlocked = penaltyAmountBN.gt(0);
 
             return {
               tokenId: tokenId.toString(),
               power: ethers.utils.formatUnits(info.power, 18),
-              canVote,
+              canVote: canVote && !isBlocked,
               voteDisabledUntil: info.voteDisabledUntil,
               unstakeAvailableAt: info.unstakeAvailableAt,
               validTo: info.validTo,
               isWrapped: true,
+              penaltyAmount: ethers.utils.formatUnits(penaltyAmountBN, 18),
+              isBlocked,
             };
           })()
         );
@@ -107,6 +117,8 @@ export function useUserNFTs(address: string | undefined) {
                 unstakeAvailableAt: 0,
                 validTo: position.lockedUntil,
                 isWrapped: false,
+                penaltyAmount: '0',
+                isBlocked: false,
               };
             } catch {
               return null;
