@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import type { Dispute } from '../hooks/useDisputes';
 import type { UserNFT } from '../hooks/useUserNFTs';
-import { CONTRACTS, DISPUTE_RESOLVER_ABI, VoteOption, DisputeState, VOTE_LABELS, STATE_LABELS } from '../config/contracts';
+import { CONTRACTS, DISPUTE_RESOLVER_ABI, VoteOption, DisputeState, VOTE_LABELS, STATE_LABELS, PROTOCOL_CONSTANTS } from '../config/contracts';
 import { txToast } from './Toast';
 import './DisputeCard.css';
 
@@ -16,15 +16,56 @@ export function DisputeCard({ dispute, userNFTs, onVoteSuccess }: DisputeCardPro
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [selectedNFTs, setSelectedNFTs] = useState<string[]>([]);
   const [voting, setVoting] = useState(false);
+  const [claiming, setClaiming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [votedNFTs, setVotedNFTs] = useState<{tokenId: string; power: string; isClaimed: boolean}[]>([]);
 
   const isActive = dispute.state === DisputeState.Active;
+  const isResolved = dispute.state === DisputeState.Resolved;
   const timeLeft = dispute.endAt * 1000 - Date.now();
   const canVote = isActive && timeLeft > 0;
   
-  const eligibleNFTs = userNFTs.filter(nft => nft.isWrapped && nft.canVote);
+  const eligibleNFTs = userNFTs.filter(nft => nft.isWrapped && nft.canVote && !nft.isBlocked);
   const totalPower = eligibleNFTs.reduce((sum, nft) => sum + parseFloat(nft.power), 0);
+
+  // Calculate reward pool (80% of disputer deposit)
+  const rewardPool = parseFloat(dispute.disputerDeposit) * (PROTOCOL_CONSTANTS.VOTERS_SHARE_BPS / PROTOCOL_CONSTANTS.BPS);
+
+  // Fetch which NFTs have voted and if rewards are claimed
+  useEffect(() => {
+    const fetchVotedNFTs = async () => {
+      if (userNFTs.length === 0) return;
+      
+      try {
+        const provider = new ethers.providers.JsonRpcProvider('https://rpc.soniclabs.com');
+        const contract = new ethers.Contract(CONTRACTS.DISPUTE_RESOLVER_HOME, DISPUTE_RESOLVER_ABI, provider);
+        
+        const votedList: {tokenId: string; power: string; isClaimed: boolean}[] = [];
+        
+        for (const nft of userNFTs.filter(n => n.isWrapped)) {
+          const hasVoted = await contract.hasVoted(dispute.oracle, nft.tokenId);
+          if (hasVoted) {
+            const [power, isClaimed] = await contract.getVoteRecordInfo(dispute.oracle, nft.tokenId);
+            votedList.push({
+              tokenId: nft.tokenId,
+              power: ethers.utils.formatUnits(power, 18),
+              isClaimed
+            });
+          }
+        }
+        
+        setVotedNFTs(votedList);
+      } catch (err) {
+        console.error('Error fetching voted NFTs:', err);
+      }
+    };
+
+    fetchVotedNFTs();
+  }, [dispute.oracle, userNFTs]);
+
+  const unclaimedNFTs = votedNFTs.filter(nft => !nft.isClaimed);
+  const canClaim = isResolved && unclaimedNFTs.length > 0;
 
   const totalVotes = parseFloat(dispute.yesVotes) + parseFloat(dispute.noVotes) + parseFloat(dispute.unknownVotes);
   const yesPercent = totalVotes > 0 ? (parseFloat(dispute.yesVotes) / totalVotes) * 100 : 0;
@@ -79,6 +120,35 @@ export function DisputeCard({ dispute, userNFTs, onVoteSuccess }: DisputeCardPro
       setError(errorMessage);
     } finally {
       setVoting(false);
+    }
+  };
+
+  const handleClaimRewards = async () => {
+    if (unclaimedNFTs.length === 0) return;
+
+    setClaiming(true);
+    setError(null);
+    const toastId = txToast.pending('Claiming Rewards...', `Claiming for ${unclaimedNFTs.length} NFT(s)`);
+
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACTS.DISPUTE_RESOLVER_HOME, DISPUTE_RESOLVER_ABI, signer);
+
+      const tokenIds = unclaimedNFTs.map(nft => ethers.BigNumber.from(nft.tokenId));
+      const tx = await contract.claimVoteRewards(dispute.oracle, tokenIds);
+
+      txToast.pending('Claiming Rewards...', 'Waiting for confirmation');
+      await tx.wait();
+      
+      txToast.success(toastId, 'Rewards Claimed!', `Claimed rewards for ${unclaimedNFTs.length} NFT(s)`, tx.hash);
+      onVoteSuccess();
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Claim failed';
+      txToast.error(toastId, 'Claim Failed', errorMessage);
+      setError(errorMessage);
+    } finally {
+      setClaiming(false);
     }
   };
 
@@ -213,6 +283,47 @@ export function DisputeCard({ dispute, userNFTs, onVoteSuccess }: DisputeCardPro
             <span className={`vote-${dispute.finalStatus}`}>
               {VOTE_LABELS[dispute.finalStatus]}
             </span>
+          </div>
+        )}
+
+        {/* Reward Pool Info */}
+        {(isActive || isResolved) && (
+          <div className="reward-pool-info">
+            <span className="reward-pool-label">💰 Voter Reward Pool</span>
+            <span className="reward-pool-value">{rewardPool.toLocaleString()} USDC</span>
+            <span className="reward-pool-note">(80% of deposit shared among all voters)</span>
+          </div>
+        )}
+
+        {/* Claim Rewards Section */}
+        {canClaim && (
+          <div className="claim-rewards-section">
+            <div className="claim-info">
+              <h4>🎁 Claim Your Rewards</h4>
+              <p>You have {unclaimedNFTs.length} NFT(s) with unclaimed rewards from voting.</p>
+            </div>
+            <button
+              className="claim-rewards-btn"
+              onClick={handleClaimRewards}
+              disabled={claiming}
+            >
+              {claiming ? 'Claiming...' : `Claim Rewards (${unclaimedNFTs.length} NFTs)`}
+            </button>
+          </div>
+        )}
+
+        {/* Show voted NFTs */}
+        {votedNFTs.length > 0 && (
+          <div className="voted-nfts-info">
+            <span className="voted-label">Your Voted NFTs:</span>
+            <div className="voted-nfts-list">
+              {votedNFTs.map(nft => (
+                <span key={nft.tokenId} className={`voted-nft-badge ${nft.isClaimed ? 'claimed' : ''}`}>
+                  #{nft.tokenId} ({parseFloat(nft.power).toFixed(0)} power)
+                  {nft.isClaimed && ' ✓'}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -634,6 +634,77 @@
   cursor: not-allowed;
 }
 
+/* Blocked NFTs */
+.nft-card-new.blocked {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.nft-status-badge.blocked {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+}
+
+.nft-penalty-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #ef4444;
+}
+
+.nft-penalty-warning svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.blocked-nfts-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  color: #ef4444;
+}
+
+.blocked-nfts-banner svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.blocked-nfts-banner strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.blocked-nfts-banner p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(239, 68, 68, 0.8);
+}
+
+/* Red button for penalties */
+.nft-shimmer-btn.red {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+  color: #ef4444;
+}
+
+.nft-shimmer-btn.red:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.25) 100%);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .manager-header-new {

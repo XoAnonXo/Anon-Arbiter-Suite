@@ -10,6 +10,10 @@ import { OrbitCarousel } from './components/OrbitCarousel';
 import { AsciiLoader } from './components/AsciiLoader';
 import { EmptyStateAscii } from './components/EmptyStateAscii';
 import { ToastProvider, txToast } from './components/Toast';
+import { HowItWorksVariations } from './components/HowItWorksVariations';
+import './components/HowItWorksVariations.css';
+import { MarketsVariations } from './components/MarketsVariations';
+import './components/MarketsVariations.css';
 import './components/AsciiLoader.css';
 import './components/Toast.css';
 import './components/MarketCard.css';
@@ -41,7 +45,6 @@ function App() {
   const [activeView, setActiveView] = useState<'markets' | 'disputes' | 'nfts' | 'howto'>('markets');
   const [filterState, setFilterState] = useState<'all' | 'active' | 'resolved'>('all');
   const [marketFilter, setMarketFilter] = useState<'all' | 'active' | 'arbitration' | 'resolved'>('all');
-  const [onlyOurArbiter, setOnlyOurArbiter] = useState(false);
   const [minting, setMinting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [openingDisputeFor, setOpeningDisputeFor] = useState<string | null>(null);
@@ -56,7 +59,7 @@ function App() {
 
   const { disputes, refetch: refetchDisputes } = useDisputes();
   const { wrappedNFTs, unwrappedNFTs, refetch: refetchNFTs } = useUserNFTs(address);
-  const { markets, loading: marketsLoading } = useMarkets(onlyOurArbiter);
+  const { markets, loading: marketsLoading } = useMarkets(true);
 
   // Filter markets based on selected filter
   const filteredMarkets = markets.filter(m => {
@@ -395,29 +398,10 @@ function App() {
             <>
               <div className="page-header">
                 <h1>Markets</h1>
-                <p className="subtitle">
-                  {onlyOurArbiter
-                    ? 'Markets with our Arbiter Suite as designated resolver'
-                    : 'All prediction markets from the factory'}
-                </p>
+                <p className="subtitle">Markets with our Arbiter Suite as designated resolver</p>
               </div>
 
               <div className="filters">
-                <button
-                  className={`filter-btn ${!onlyOurArbiter ? 'active' : ''}`}
-                  onClick={() => setOnlyOurArbiter(false)}
-                  style={{ marginRight: '10px' }}
-                >
-                  🌐 All Markets
-                </button>
-                <button
-                  className={`filter-btn ${onlyOurArbiter ? 'active' : ''}`}
-                  onClick={() => setOnlyOurArbiter(true)}
-                  style={{ marginRight: '20px' }}
-                >
-                  ⚖️ Our Arbiter Only
-                </button>
-
                 <button
                   className={`filter-btn ${marketFilter === 'all' ? 'active' : ''}`}
                   onClick={() => setMarketFilter('all')}
@@ -455,18 +439,18 @@ function App() {
                   subtitle={`There are no ${marketFilter !== 'all' ? marketFilter : ''} markets with our arbiter at the moment.`}
                 />
               ) : (
-                <div className="markets-grid">
-                  {filteredMarkets.map(market => (
-                    <MarketCard
-                      key={`${market.pollAddress}-${market.marketAddress}`}
-                      market={market}
-                      onOpenDispute={(pollAddress, marketAddress, collateralToken, status, reason) => {
-                        openDispute(pollAddress, marketAddress, collateralToken, status, reason);
-                      }}
-                      isOpeningDispute={openingDisputeFor === market.pollAddress}
-                    />
-                  ))}
-                </div>
+                <MarketsVariations
+                  markets={filteredMarkets}
+                  userNFTs={wrappedNFTs}
+                  onOpenDispute={(pollAddress, marketAddress, collateralToken, status, reason) => {
+                    openDispute(pollAddress, marketAddress, collateralToken, status, reason);
+                  }}
+                  onVoteSuccess={() => {
+                    refetchNFTs();
+                    refetchDisputes();
+                  }}
+                  openingDisputeFor={openingDisputeFor}
+                />
               )}
             </>
           )}
@@ -558,110 +542,8 @@ function App() {
               {/* Orbit Carousel */}
               <OrbitCarousel onVoteClick={() => setActiveView('disputes')} />
 
-              <div className="howto-content howto-grid">
-                {/* What is this */}
-                <section className="howto-section">
-                  <div className="howto-number">1</div>
-                  <div className="howto-text">
-                    <h3>What is Arbiter Suite?</h3>
-                    <p>
-                      When a prediction market result looks wrong, anyone can challenge it.
-                      Token holders then vote to decide the correct outcome.
-                      Think of it as a <strong>community jury</strong> for market disputes.
-                    </p>
-                  </div>
-                </section>
-
-                {/* Get Voting Power */}
-                <section className="howto-section">
-                  <div className="howto-number">2</div>
-                  <div className="howto-text">
-                    <h3>Get Voting Power</h3>
-                    <p>
-                      To vote on disputes, you need <strong>Voting NFTs</strong>. Here's how:
-                    </p>
-                    <ul className="howto-list">
-                      <li>Stake your ANON tokens to receive a Staking NFT</li>
-                      <li>Go to <strong>"My NFTs"</strong> tab</li>
-                      <li>Click <strong>"Wrap"</strong> to convert your Staking NFT into a Voting NFT</li>
-                      <li>Your voting power = amount of tokens staked</li>
-                    </ul>
-                  </div>
-                </section>
-
-                {/* Vote on Disputes */}
-                <section className="howto-section">
-                  <div className="howto-number">3</div>
-                  <div className="howto-text">
-                    <h3>Vote on Disputes</h3>
-                    <p>
-                      When a dispute is active, you can cast your vote:
-                    </p>
-                    <ul className="howto-list">
-                      <li><strong>Yes</strong> — The market result was correct</li>
-                      <li><strong>No</strong> — The market result was wrong</li>
-                      <li><strong>Unknown</strong> — Cannot determine the outcome</li>
-                    </ul>
-                    <p className="howto-note">
-                      Select your NFTs and submit your vote. The option with the most voting power wins.
-                    </p>
-                  </div>
-                </section>
-
-                {/* Earn Rewards */}
-                <section className="howto-section">
-                  <div className="howto-number">4</div>
-                  <div className="howto-text">
-                    <h3>Earn Rewards</h3>
-                    <p>
-                      <strong>All voters get paid!</strong> When a dispute resolves:
-                    </p>
-                    <ul className="howto-list">
-                      <li>80% of the dispute deposit goes to voters</li>
-                      <li>Rewards are proportional to your voting power</li>
-                      <li>You earn regardless of which side you voted for</li>
-                    </ul>
-                    <p className="howto-note">
-                      The more you participate, the more you earn.
-                    </p>
-                  </div>
-                </section>
-
-                {/* Penalty System */}
-                <section className="howto-section warning">
-                  <div className="howto-number">⚠</div>
-                  <div className="howto-text">
-                    <h3>Penalty for Wrong Votes</h3>
-                    <p>
-                      If you vote <strong>against the consensus</strong> (the losing side), your NFT may receive a penalty:
-                    </p>
-                    <ul className="howto-list">
-                      <li>Your NFT will be <strong>blocked</strong> from unwrapping</li>
-                      <li>You cannot transfer or withdraw the NFT</li>
-                      <li>You must <strong>pay the penalty fee</strong> to unblock it</li>
-                      <li>Once paid, your NFT is free to use again</li>
-                    </ul>
-                    <p className="howto-note">
-                      💡 Vote carefully! Consider the evidence before choosing a side. Malicious or careless voting has consequences.
-                    </p>
-                  </div>
-                </section>
-
-                {/* Important Rules */}
-                <section className="howto-section highlight">
-                  <div className="howto-number">!</div>
-                  <div className="howto-text">
-                    <h3>Important Rules</h3>
-                    <ul className="howto-list">
-                      <li><strong>60-hour cooldown</strong> after wrapping before you can vote</li>
-                      <li><strong>NFTs are locked</strong> for 60 hours after voting</li>
-                      <li><strong>One vote per NFT</strong> per dispute</li>
-                      <li><strong>Voting period is limited</strong> — vote before time runs out</li>
-                    </ul>
-                  </div>
-                </section>
-
-              </div>
+              {/* Block Variations - Choose your favorite layout */}
+              <HowItWorksVariations onVoteClick={() => setActiveView('disputes')} />
             </div>
           )}
         </main>

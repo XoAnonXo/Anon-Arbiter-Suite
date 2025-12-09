@@ -60,6 +60,7 @@
     "hardhat-deploy": "^0.12.1",
     "mocha": "^10.2.0",
     "prettier": "^3.2.5",
+    "shadcn": "^3.5.1",
     "solhint": "^4.1.1",
     "solidity-bytes-utils": "^0.8.2",
     "solidity-coverage": "^0.8.16",

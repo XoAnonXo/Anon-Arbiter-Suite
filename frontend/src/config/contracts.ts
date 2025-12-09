@@ -70,6 +70,9 @@ export const DISPUTE_RESOLVER_ABI = [
   'function getRequiredCollateral(address oracle) view returns (uint256)',
   'function getCoinForMarket(address market) view returns (address)',
   'function getMarketAddress(address oracle) view returns (address)',
+  'function penalties(uint256 tokenId) view returns (uint256)',
+  'function penaltyToken() view returns (address)',
+  'function getUnclaimedVoteRewards(uint256 tokenId, uint256 offset, uint256 limit) view returns (uint256 total, address[] oracles)',
   
   // Write functions
   'function vote(address oracle, uint8 status, uint256[] tokenIds)',
@@ -77,12 +80,20 @@ export const DISPUTE_RESOLVER_ABI = [
   'function withdrawTo(address account, uint256[] tokenIds) returns (bool)',
   'function claimVoteRewards(address oracle, uint256[] tokenIds) returns (bool)',
   'function openDispute(address oracle, uint8 status, string reason)',
+  'function payPenalty(uint256 tokenId)',
   
   // Events
   'event Vote(address indexed voter, address indexed oracle, uint256 power, uint8 status)',
   'event DisputeCreated(address indexed disputer, address indexed oracle, uint8 draftStatus, uint256 amount, address marketToken)',
   'event DisputeResolved(address indexed oracle, uint8 finalStatus, address resolver)',
 ] as const;
+
+/** Protocol constants from the contract */
+export const PROTOCOL_CONSTANTS = {
+  PROTOCOL_FEE_BPS: 2000, // 20% protocol fee
+  BPS: 10000, // Basis points denominator
+  VOTERS_SHARE_BPS: 8000, // 80% goes to voters (BPS - PROTOCOL_FEE)
+} as const;
 
 /**
  * ERC20 ABI for token approvals
